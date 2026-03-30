@@ -199,7 +199,7 @@ After installing, re-run the check before proceeding.
 ### Style
 
 - Format: `N/Total` (e.g. `3/24`)
-- Position: bottom-right corner, ~20 pt from the right edge, ~15 pt from the bottom
+- Position: bottom-left corner, ~15 pt from the left edge, ~15 pt from the bottom
 - Font size: 9 pt
 - Color: dark gray `(0.4, 0.4, 0.4)` — visible but not distracting
 - No background box, no border
@@ -222,13 +222,13 @@ total = len(doc)
 for i, page in enumerate(doc, start=1):
     label = f"{i}/{total}"
     r     = page.rect
-    pt    = fitz.Point(r.width - 20, r.height - 15)
+    pt    = fitz.Point(15, r.height - 15)
     page.insert_text(
         pt,
         label,
         fontsize = 9,
         color    = (0.4, 0.4, 0.4),
-        align    = fitz.TEXT_ALIGN_RIGHT,
+        align    = fitz.TEXT_ALIGN_LEFT,
     )
 
 doc.save(tmp, garbage=4, deflate=True)
@@ -263,10 +263,10 @@ total=$(python3 -c "import fitz; print(len(fitz.open('$pdf')))" 2>/dev/null \
 
 convert \
   -density 150 "$pdf" \
-  -gravity SouthEast \
+  -gravity SouthWest \
   -pointsize 11 \
   -fill "gray50" \
-  -annotate +18+12 "%[fx:page+1]/${total}" \
+  -annotate +15+12 "%[fx:page+1]/${total}" \
   "$tmp"
 
 mv "$pdf" "$unnumbered"
