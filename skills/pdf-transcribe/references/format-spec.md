@@ -1,6 +1,6 @@
-# Lecture Notes format (spec)
+# Output format (spec)
 
-This skill outputs lecture notes in a strict Markdown structure.
+This skill outputs a strict, per-page Markdown structure suitable for transcribing any PDF (slide decks are a common case).
 
 ## File naming + location
 
@@ -8,7 +8,7 @@ This skill outputs lecture notes in a strict Markdown structure.
 - The output `.md` file name matches the PDF base name (only the extension changes).
 
 Example:
-- `/path/to/CS 5008 Lecture 1.pdf` → `/path/to/CS 5008 Lecture 1.md`
+- `/path/to/Document.pdf` → `/path/to/Document.md`
 
 ## Temporary rendering directory
 
@@ -47,7 +47,7 @@ Each page (or merged range) is a block:
 ---
 ```
 
-If an animated sequence spans multiple pages, merge them:
+If a continuing sequence spans multiple pages (common in slide exports), merge them:
 
 ```md
 # PAGE_4-6:
@@ -57,7 +57,7 @@ If an animated sequence spans multiple pages, merge them:
 
 ### Text
 
-- Transcribe all visible slide text as-is.
+- Transcribe all visible text as-is.
 - Do not add commentary or explanations.
 - Code uses fenced Markdown code blocks (add a language tag when possible).
 
@@ -69,7 +69,7 @@ If an animated sequence spans multiple pages, merge them:
 
 - **Non-traceable images** (photos/screenshots/complex visuals):
   - use one or more `[IMAGE] ...` lines describing:
-    - position on slide
+    - position on page
     - content and meaning
     - visual appearance (shapes/arrows/colors/layout)
 
@@ -83,6 +83,6 @@ To control context size, use a repeating 10-page batch:
 
 ### Cross-batch continuation
 
-If a PPT animation continues across batches:
+If a continuing sequence spans batches:
 - after reading the next batch, go back and widen the earlier header (`# PAGE_N:` → `# PAGE_N-M:`)
 - append the new content to the merged block’s `## Content`

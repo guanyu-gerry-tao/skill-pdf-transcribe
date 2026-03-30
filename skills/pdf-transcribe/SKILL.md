@@ -1,17 +1,17 @@
 ---
-name: skill-pdf-transcribe
-description: "Transcribe lecture PDFs (often slide decks) into strict per-page Markdown notes using Ekphrasis, with a 10-pages-per-batch workflow and support for merging PAGE ranges when animations span multiple pages. Use when: lecture notes, transcribe slides, ekphrasis, PAGE_N format."
+name: pdf-transcribe
+description: "Transcribe PDFs into strict, per-page Markdown notes using Ekphrasis, with a 10-pages-per-batch workflow and support for merging PAGE ranges when sequences span multiple pages. Slide decks are a common use case. Use when: transcribe PDF, PDF to Markdown, ekphrasis, PAGE_N format."
 argument-hint: PDF path + optional page range + batching preference
 ---
 
-# PDF Transcribe (Lecture Notes)
+# PDF Transcribe
 
-Turn lecture PDFs (often slide decks) into **strict, per-page Markdown notes** using the required Lecture Notes format and Ekphrasis rules.
+Turn PDFs into **strict, per-page Markdown notes** using the required format and Ekphrasis rules.
 
 ## When to use
 
 Use this skill when the user wants:
-- lecture notes for a PDF / slide deck
+- page-by-page transcription for a PDF (slide decks are a common case)
 - strict `# PAGE_N:` / `# PAGE_N-M:` blocks
 - Ekphrasis transcription (no commentary)
 - a batching workflow (read 10 pages, write 10 pages) to control context size
@@ -30,7 +30,7 @@ When the user asks to transcribe a PDF:
 5. Write the transcription output to a Markdown file that:
   - has the **same base name** as the PDF
   - lives in the **same directory** as the PDF
-  - example: `/path/to/Lecture 01.pdf` → `/path/to/Lecture 01.md`
+  - example: `/path/to/Document.pdf` → `/path/to/Document.md`
 6. After finishing, delete the temp dir.
 
 ## Safety: deleting the working folder
@@ -107,7 +107,7 @@ Each page (or merged page range) MUST be emitted as:
 ---
 ```
 
-If multiple pages describe the same continuing sequence (e.g., PPT animations), merge into a single block header like:
+If multiple pages describe the same continuing sequence (common in slide exports), merge into a single block header like:
 
 ```md
 # PAGE_4-6:
@@ -133,7 +133,7 @@ If multiple pages describe the same continuing sequence (e.g., PPT animations), 
 
 **If the diagram is not traceable** (screenshots, photos, abstract images, complex visuals):
 - Use `[IMAGE]` lines with a detailed visual description, including:
-  - where it appears on the slide (top-left / center / bottom-right, etc.)
+  - where it appears on the page (top-left / center / bottom-right, etc.)
   - what it depicts and means
   - visual appearance (shapes, arrows, colors, layout)
   - if multiple images, use multiple `[IMAGE]` lines
@@ -147,9 +147,9 @@ To avoid oversized context, work in batches:
 2. Write/append the corresponding pages into the target Markdown notes file.
 3. Repeat until all pages are processed.
 
-### Cross-batch animation continuation
+### Cross-batch continuation
 
-If you detect the same animated sequence continues past the end of a batch:
+If you detect the same continuing sequence spans batches:
 - In the next batch, after reading the continuation pages, go back and **expand** the earlier header `# PAGE_N:` to `# PAGE_N-M:`
 - Append the newly discovered content into that merged block’s `## Content`
 
@@ -163,5 +163,5 @@ If you detect the same animated sequence continues past the end of a batch:
 ## Assets
 
 - [examples/prompts.md](examples/prompts.md)
-- [references/lecture-notes-format.md](./references/lecture-notes-format.md)
-- [references/quality-checklist.md](./references/quality-checklist.md)
+- [references/format-spec.md](references/format-spec.md)
+- [references/quality-checklist.md](references/quality-checklist.md)
