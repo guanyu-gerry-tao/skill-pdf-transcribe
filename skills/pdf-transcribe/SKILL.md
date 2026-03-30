@@ -48,39 +48,19 @@ Required guardrails:
   - it contains both `lr/` and `hr/` subdirectories (sentinel check)
 - If any check fails: do not delete; stop and surface an error.
 
-### Suggested rendering commands (optional)
+### Rendering script
 
-Any equivalent rendering is acceptable as long as it produces `.jpg` at the required DPI.
-
-Example using `pdftoppm` (Poppler):
+Use the provided script — see [scripts/render_pages.sh](scripts/render_pages.sh).
 
 ```sh
-set -euo pipefail
+# Capture the working directory path
+tmpdir=$(bash scripts/render_pages.sh "/path/to/Lecture.pdf")
 
-pdf="/path/to/file.pdf"
-pdf_dir="$(dirname "$pdf")"
-pdf_base="$(basename "$pdf" .pdf)"
+# ...transcribe using $tmpdir/lr/ and $tmpdir/hr/ ...
 
-# Create the working folder NEXT TO the PDF, with a unique name.
-(
-  cd "$pdf_dir"
-  tmpdir="$(mktemp -d "${pdf_base}__working.XXXXXXXX")"
-  export tmpdir
-)
-
-mkdir -p "$tmpdir/lr" "$tmpdir/hr"
-
-# 72 DPI JPGs
-pdftoppm -jpeg -r 72 "$pdf" "$tmpdir/lr/page"
-
-# 300 DPI JPGs
-pdftoppm -jpeg -r 300 "$pdf" "$tmpdir/hr/page"
-
-# ...transcribe...
-
-# Defensive cleanup: refuse to delete unless all checks pass.
+# Defensive cleanup after transcription
 case "$tmpdir" in
-  "$pdf_dir"/*__working.*) ;;
+  *__working.*) ;;
   *) echo "Refusing to delete unexpected path: $tmpdir" >&2; exit 1 ;;
 esac
 
@@ -206,44 +186,10 @@ After installing, re-run the check before proceeding.
 
 ### Implementation (PyMuPDF)
 
-Write the snippet below to a temp file and execute it:
-
-```python
-import sys, os, fitz  # pip install pymupdf
-
-pdf   = sys.argv[1]                          # e.g. /path/to/Lecture.pdf
-base  = os.path.splitext(pdf)[0]
-tmp   = base + "__numbered_tmp.pdf"
-unnumbered = base + "_unnumbered.pdf"
-
-doc   = fitz.open(pdf)
-total = len(doc)
-
-for i, page in enumerate(doc, start=1):
-    label = f"{i}/{total}"
-    r     = page.rect
-    pt    = fitz.Point(15, r.height - 15)
-    page.insert_text(
-        pt,
-        label,
-        fontsize = 9,
-        color    = (0.4, 0.4, 0.4),
-        align    = fitz.TEXT_ALIGN_LEFT,
-    )
-
-doc.save(tmp, garbage=4, deflate=True)
-doc.close()
-
-# Atomic rename: original → _unnumbered, numbered → original name
-os.rename(pdf, unnumbered)
-os.rename(tmp, pdf)
-print(f"Done: {pdf} (numbered), {unnumbered} (original backup)")
-```
-
-Run as:
+Use the provided script — see [scripts/add_page_numbers.py](scripts/add_page_numbers.py).
 
 ```sh
-python3 /tmp/add_page_numbers.py "/path/to/Lecture.pdf"
+python3 scripts/add_page_numbers.py "/path/to/Lecture.pdf"
 ```
 
 Result:
